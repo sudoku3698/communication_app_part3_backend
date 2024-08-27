@@ -1,11 +1,6 @@
 const Pool = require("pg").Pool;
-const pool = new Pool({
-    user: 'postgres',
-    password: 'root',
-    host: 'localhost',
-    port: 5432,
-    database: 'dashboard',
-})
+const constant=require("./util/constant")
+const pool = new Pool(constant.databaseConfig)
 
 const getChats = (request, response) => {
     let sqlQuery = `SELECT username, message, date FROM chats ORDER BY date DESC`;

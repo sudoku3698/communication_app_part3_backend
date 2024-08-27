@@ -1,14 +1,8 @@
-const Pool = require("pg").Pool;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const pool = new Pool({
-    user: 'postgres',
-    password: 'root',
-    host: 'localhost',
-    port: 5432,
-    database: 'dashboard',
-})
-const constant=require('./util/constant')
+const constant=require("./util/constant")
+const Pool = require("pg").Pool;
+const pool = new Pool(constant.databaseConfig)
 const secretKey = constant.secretKey; 
 
 const saltRounds = 10;

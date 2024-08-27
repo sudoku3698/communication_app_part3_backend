@@ -2,13 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
 const Pool = require("pg").Pool;
-const pool = new Pool({
-    user: 'postgres',
-    password: 'root',
-    host: 'localhost',
-    port: 5432,
-    database: 'dashboard',
-})
+const constant=require("./util/constant")
+const pool = new Pool(constant.databaseConfig)
 
 const getFiles = (request, response) => {
     pool.query("SELECT * FROM uploads", function (error, results) {
