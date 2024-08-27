@@ -33,7 +33,7 @@ const deleteFileById = (request, response) => {
         let filename = results.rows[0].filename;
         fs.unlink(filename, (err) => {
             if (err) {
-                throw err
+                
             }
             pool.query(`DELETE FROM uploads where id = ${id}`, function (error, results) {
                 if (error) {
