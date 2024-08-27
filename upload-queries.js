@@ -52,15 +52,16 @@ const deleteFileById = (request, response) => {
 
 const addFile = (request, response) => {
     const form = new formidable.IncomingForm();
+    let newpath ='';
     form.parse(request, (err, fields, files) => {
         if (err) {
-        next(err);
+        console.log(err)
         return;
         }
         console.log(fields, files)
-        var oldpath = files.filetoupload[0].filepath;
-        var fileExtension = files.filetoupload[0].originalFilename.split('.').pop();
-        var newpath =   "uploads/" + Math.random().toString(36).substring(2, 10) + '.' + fileExtension;
+        let oldpath = files.filetoupload[0].filepath;
+        let fileExtension = files.filetoupload[0].originalFilename.split('.').pop();
+         newpath =   "uploads/" + Math.random().toString(36).substring(2, 10) + '.' + fileExtension;
             fs.copyFile(oldpath, newpath, function (err) { // 1st approach
                 if (err) throw err;
                 let label = fields.label;
@@ -71,26 +72,28 @@ const addFile = (request, response) => {
                     if (error) {
                         throw error
                     }
-                    return response.status(200).send({"message":"Added File"});
+                    return response.status(200).send({"message":"Added File","filename":newpath});
                 })
             })    
     })
 }
 
 const updateFile = (request, response) => {
-    const form = new formidable.IncomingForm();
+    const form = new formidable.IncomingForm({});
+    let newpath ='';
     form.parse(request, async (err, fields, files) => {
         if (err) {
-            next(err);
+            console.log(err)
             return;
         }
         let id = +(request.params.id);
         let label = fields.label;
         let filename = null;
+        console.log(files.filetoupload)
         if (files.filetoupload) {
             let oldpath = files.filetoupload[0].filepath;
             let fileExtension = files.filetoupload[0].originalFilename.split('.').pop();
-            let newpath =   "uploads/" + Math.random().toString(36).substring(2, 10) + '.' + fileExtension;
+             newpath =   "uploads/" + Math.random().toString(36).substring(2, 10) + '.' + fileExtension;
             try {
                 await new Promise((resolve, reject) => {
                     fs.copyFile(oldpath, newpath, (err) => {
@@ -112,7 +115,7 @@ const updateFile = (request, response) => {
             if (error) {
                 throw error
             }
-            return response.status(200).send({"message":`Update File Id: ${id}`});
+            return response.status(200).send({"message":`Update File Id: ${id}`,'filename':newpath});
         })
     })
 }

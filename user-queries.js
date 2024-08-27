@@ -23,7 +23,7 @@ const hashPassword = async (password) => {
 }
 
 const findUserByEmail = async (email) => {
-    let sqlQuery = `SELECT * FROM users WHERE email = '${email}'`;
+    let sqlQuery = `SELECT id,name,email,password FROM users WHERE email = '${email}'`;
     let result = await pool.query(sqlQuery);
     return result.rows[0];
 }
@@ -43,9 +43,8 @@ const getUserByToken = async (request, response) => {
 
 const authenticateUser = async (request, response) => {
     let { email,password } = request.body;
-    try {
+     try {
       const user = await findUserByEmail(email);
-      console.log(user)
       if (!user) {
         return response.status(401).json({ message: 'Invalid credentials' });
       }
@@ -54,9 +53,8 @@ const authenticateUser = async (request, response) => {
       if (!isMatch) {
         return response.status(401).json({ message: 'Invalid credentials' });
       }
-      
       // Generate JWT token
-      const token = jwt.sign({ email: user.email }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign({ email: user.email }, secretKey);
       return response.status(200).json({ token });
     } catch (error) {
       return response.status(500).json({ message: 'Server error' });

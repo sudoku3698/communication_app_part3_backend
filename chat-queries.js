@@ -1,3 +1,12 @@
+const Pool = require("pg").Pool;
+const pool = new Pool({
+    user: 'postgres',
+    password: 'root',
+    host: 'localhost',
+    port: 5432,
+    database: 'dashboard',
+})
+
 const getChats = (request, response) => {
     let sqlQuery = `SELECT username, message, date FROM chats ORDER BY date DESC`;
     pool.query(sqlQuery, function (error, results) {
@@ -21,12 +30,12 @@ const getChatById = (request, response) => {
 
 const addChat = (request, response) => {
     let { username, message, date } = request.body;
-    let sqlQuery = `INSERT INTO chats(username, message, date) VALUES ('${username}', '${message}', '${date}')`;
+    let sqlQuery = `INSERT INTO chats(username, message, date) VALUES ('${username}', '${message}', '${date}') returning *`;
     pool.query(sqlQuery, function (error, results) {
         if (error) {
             throw error
         }
-        return response.status(200).send({"meesage":"Added Chat"});
+        return response.status(200).json({ message: 'Added Chat', data: results.rows[0] });
     })
 }
 

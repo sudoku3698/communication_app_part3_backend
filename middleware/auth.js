@@ -9,7 +9,6 @@ const authenticateToken = (req, res, next) => {
     if (token == null) return res.status(401).json({ message: 'Unauthorized' });
   
     jwt.verify(token, secretKey, (err, user) => {
-        console.log(token, secretKey)
       if (err) return res.status(403).json({ message: err });
       req.user = user;
       next();
