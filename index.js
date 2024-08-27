@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
@@ -13,8 +14,8 @@ const upload_queries = require("./upload-queries");
 const authMiddleware=require('./middleware/auth')
 const chat_queries = require("./chat-queries");
 
-const secretKey = 'your-secret-key'; 
-
+const secretKey = process.env.SECRETE_KEY; 
+const port= process.env.PORT || 4200
 app.use('/uploads', express.static('uploads'));
 // parse application/json
 app.use(bodyParser.json())
