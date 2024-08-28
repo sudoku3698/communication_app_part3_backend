@@ -198,5 +198,9 @@ app.put('/uploads/:id',authMiddleware.authenticateToken, upload_queries.updateFi
 
 app.post('/chats',authMiddleware.authenticateToken, chat_queries.addChat);
 app.get('/chats',authMiddleware.authenticateToken, chat_queries.getChats);
+app.get('/download', (req, res) => {
+    const file = req.query.filename;
+    res.download(file); // Set the appropriate path to your file
+});
 
 app.listen(4200);
