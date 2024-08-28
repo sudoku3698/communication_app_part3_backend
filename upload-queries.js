@@ -62,12 +62,12 @@ const addFile = (request, response) => {
                 let label = fields.label;
                 let filename = newpath;
     
-                let sqlQuery = `INSERT INTO uploads(label, filename) VALUES ('${label}', '${filename}')`;
+                let sqlQuery = `INSERT INTO uploads(label, filename) VALUES ('${label}', '${filename}') returning *`;
                 pool.query(sqlQuery, function (error, results) {
                     if (error) {
                         throw error
                     }
-                    return response.status(200).send({"message":"Added File","filename":newpath});
+                    return response.status(200).json({'message':'Added File','filename':newpath,'data':results.rows[0]});
                 })
             })    
     })
@@ -106,6 +106,7 @@ const updateFile = (request, response) => {
             sqlQuery += `, filename='${filename}'`;
         }
         sqlQuery += ` where id = ${id}`;
+        console.log(sqlQuery)
         pool.query(sqlQuery, function (error, results) {
             if (error) {
                 throw error
