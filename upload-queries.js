@@ -50,10 +50,8 @@ const addFile = (request, response) => {
     let newpath ='';
     form.parse(request, (err, fields, files) => {
         if (err) {
-        console.log(err)
         return;
         }
-        console.log(fields, files)
         let oldpath = files.filetoupload[0].filepath;
         let fileExtension = files.filetoupload[0].originalFilename.split('.').pop();
          newpath =   "uploads/" + Math.random().toString(36).substring(2, 10) + '.' + fileExtension;
@@ -78,13 +76,11 @@ const updateFile = (request, response) => {
     let newpath ='';
     form.parse(request, async (err, fields, files) => {
         if (err) {
-            console.log(err)
             return;
         }
         let id = +(request.params.id);
         let label = fields.label;
         let filename = null;
-        console.log(files.filetoupload)
         if (files.filetoupload) {
             let oldpath = files.filetoupload[0].filepath;
             let fileExtension = files.filetoupload[0].originalFilename.split('.').pop();
@@ -106,7 +102,6 @@ const updateFile = (request, response) => {
             sqlQuery += `, filename='${filename}'`;
         }
         sqlQuery += ` where id = ${id}`;
-        console.log(sqlQuery)
         pool.query(sqlQuery, function (error, results) {
             if (error) {
                 throw error
