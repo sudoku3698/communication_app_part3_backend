@@ -16,7 +16,7 @@ const chat_queries = require("./chat-queries");
 
 const secretKey = process.env.SECRETE_KEY; 
 const port= process.env.PORT || 4200
-app.use('/uploads', express.static('uploads'));
+// app.use('/uploads', express.static('uploads'));
 // parse application/json
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
