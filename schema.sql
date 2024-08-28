@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS communication.chats;
+DROP TABLE IF EXISTS public.chats;
 
-CREATE TABLE IF NOT EXISTS communication.chats
+CREATE TABLE IF NOT EXISTS public.chats
 (
     id integer NOT NULL DEFAULT nextval('chats_id_seq'::regclass),
     message character varying COLLATE pg_catalog."default",
@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS communication.chats
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS communication.chats
+ALTER TABLE IF EXISTS public.chats
     OWNER to postgres;
 
 
-DROP TABLE IF EXISTS communication.users;
+DROP TABLE IF EXISTS public.users;
 
-CREATE TABLE IF NOT EXISTS communication.users
+CREATE TABLE IF NOT EXISTS public.users
 (
     id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
     name text COLLATE pg_catalog."default" NOT NULL,
@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS communication.users
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS communication.users
+ALTER TABLE IF EXISTS public.users
     OWNER to postgres;
 
-DROP TABLE IF EXISTS communication.uploads;
+DROP TABLE IF EXISTS public.uploads;
 
-CREATE TABLE IF NOT EXISTS communication.uploads
+CREATE TABLE IF NOT EXISTS public.uploads
 (
     id integer NOT NULL DEFAULT nextval('uploads_id_seq'::regclass),
     label text COLLATE pg_catalog."default" NOT NULL,
@@ -43,5 +43,5 @@ CREATE TABLE IF NOT EXISTS communication.uploads
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS communication.uploads
+ALTER TABLE IF EXISTS public.uploads
     OWNER to postgres;
