@@ -1,9 +1,5 @@
 const fs = require('fs');
-const path = require('path');
 const formidable = require('formidable');
-const Pool = require("pg").Pool;
-const constant=require("./util/constant")
-const pool = new Pool(constant.databaseConfig)
 const Upload = require('./models/uploads');
 
 const { Op } = require('sequelize');

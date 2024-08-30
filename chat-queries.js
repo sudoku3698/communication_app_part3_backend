@@ -1,6 +1,3 @@
-const Pool = require("pg").Pool;
-const constant=require("./util/constant")
-const pool = new Pool(constant.databaseConfig)
 const Chat = require('./models/chat');
 
 const getChats = (request, response) => {

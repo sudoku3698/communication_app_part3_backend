@@ -1,8 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const constant=require("./util/constant")
-const Pool = require("pg").Pool;
-const pool = new Pool(constant.databaseConfig)
 const secretKey = constant.secretKey; 
 const User = require('./models/user');
 
