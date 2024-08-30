@@ -1,4 +1,4 @@
-const Chat = require('./models/chat');
+const Chat = require('../models/chat');
 
 const getChats = (request, response) => {
     Chat.findAll({

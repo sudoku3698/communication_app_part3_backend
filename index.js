@@ -9,10 +9,10 @@ app.use(cors());
 const swaggerUI = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 
-const usert_queries = require("./user-queries");
-const upload_queries = require("./upload-queries");
+const usert_queries = require("./controller/user-queries");
+const upload_queries = require("./controller/upload-queries");
 const authMiddleware=require('./middleware/auth')
-const chat_queries = require("./chat-queries");
+const chat_queries = require("./controller/chat-queries");
 
 const secretKey = process.env.SECRETE_KEY; 
 const port= process.env.PORT || 4200

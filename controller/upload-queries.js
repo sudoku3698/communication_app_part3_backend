@@ -1,6 +1,6 @@
 const fs = require('fs');
 const formidable = require('formidable');
-const Upload = require('./models/uploads');
+const Upload = require('../models/uploads');
 
 const { Op } = require('sequelize');
 
