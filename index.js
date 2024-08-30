@@ -22,6 +22,8 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
+const User = require('./models/user');
+
 /**
 * @swagger
 *   /:
@@ -193,7 +195,10 @@ app.get('/uploads',authMiddleware.authenticateToken, upload_queries.getFiles);
 app.get('/uploads/:id',authMiddleware.authenticateToken, upload_queries.getFileById);
 app.delete('/uploads/:id',authMiddleware.authenticateToken, upload_queries.deleteFileById);
 
+
 app.post('/uploads',authMiddleware.authenticateToken, upload_queries.addFile);
+
+
 app.put('/uploads/:id',authMiddleware.authenticateToken, upload_queries.updateFile);
 
 app.post('/chats',authMiddleware.authenticateToken, chat_queries.addChat);
@@ -202,5 +207,19 @@ app.get('/download', (req, res) => {
     const file = req.query.filename;
     res.download(file); // Set the appropriate path to your file
 });
+
+app.get('/test', async (req, res) => {
+    
+    const users=await User.findAll();
+    res.json(users);
+});
+
+
+app.get('/test_create', async (req, res) => {
+    
+    const users=await User.create({name:"sudesh",email:"sudesh@gmail.com",password:"123"});
+    res.json(users);
+});
+
 
 app.listen(4200);

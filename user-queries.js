@@ -4,6 +4,7 @@ const constant=require("./util/constant")
 const Pool = require("pg").Pool;
 const pool = new Pool(constant.databaseConfig)
 const secretKey = constant.secretKey; 
+const User = require('./models/user');
 
 const saltRounds = 10;
 
@@ -15,117 +16,108 @@ const hashPassword = async (password) => {
     }
 }
 
-const findUserByEmail = async (email) => {
-    let sqlQuery = `SELECT id,name,email,password FROM users WHERE email = '${email}'`;
-    let result = await pool.query(sqlQuery);
-    return result.rows[0];
+const authenticateUser = async (request, response) => {
+    const { email, password } = request.body;
+    const user = await User.findOne({
+        where: { email }
+    });
+    if (!user) {
+        return response.status(404).json({ message: 'User not found' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return response.status(401).json({ message: 'Invalid password' });
+    }
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+    return response.status(200).json({ token });
 }
 
 const getUserByToken = async (request, response) => {
-    const authHeader = request.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    
+    const token = request.headers['authorization']?.split(' ')[1];
+    if (!token) {
+        return response.status(401).json({ message: 'Unauthorized' });
+    }
     try {
-      const decoded = jwt.verify(token, secretKey);
-      const user = await findUserByEmail(decoded.email);
-      return response.status(200).json({ user});
+        const decoded = jwt.verify(token, secretKey);
+        const user = await User.findByPk(decoded.userId);
+        if (!user) {
+            return response.status(404).json({ message: 'User not found' });
+        }
+        return response.status(200).json({user});
     } catch (error) {
-        return response.status(401).json({ message: 'Invalid token' });
+        return response.status(401).json({ message: error.message });
     }
-  }
+}
 
-const authenticateUser = async (request, response) => {
-    let { email,password } = request.body;
-     try {
-      const user = await findUserByEmail(email);
-      if (!user) {
-        return response.status(401).json({ message: 'Invalid credentials' });
-      }
-      
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return response.status(401).json({ message: 'Invalid credentials' });
-      }
-      // Generate JWT token
-      const token = jwt.sign({ email: user.email }, secretKey);
-      return response.status(200).json({ token });
-    } catch (error) {
-      return response.status(500).json({ message: 'Server error' });
+const { Op } = require('sequelize');
+
+const getUsers = async (request, response) => {
+    const users = await User.findAll({
+        attributes: ['id', 'name', 'email']
+    });
+    return response.status(200).json(users);
+}
+
+const getUserById = async (request, response) => {
+    const id = +(request.params.id);
+    const user = await User.findByPk(id);
+    if (!user) {
+        return response.status(404).json({ message: 'User not found' });
     }
-};
-
-// GET ALL USERS
-const getUsers = (request, response) => {
-    pool.query("SELECT id,name,email FROM users", function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).json(results.rows);
-    })
+    return response.status(200).json(user);
 }
 
-// GET USER BY ID
-const getUserById = (request, response) => {
-    let id = +(request.params.id);
-    pool.query(`SELECT * FROM users where id = ${id}`, function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).json(results.rows[0]);
-    })
+const deleteUserById = async (request, response) => {
+    const id = +(request.params.id);
+    const user = await User.findByPk(id);
+    if (!user) {
+        return response.status(404).json({ message: 'User not found' });
+    }
+    await user.destroy();
+    return response.status(200).json({ message: `Deleted User Id: ${id}` });
 }
 
-// DELETE USER BY ID
-const deleteUserById = (request, response) => {
-    let id = +(request.params.id);
-    pool.query(`DELETE FROM users where id = ${id}`, function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).json({ message: `Deleted User Id: ${id}` });
-    })
-}
-
-// REGISTER NEW USER
 const registerUser = async (request, response) => {
     let { name, email,password } = request.body;
-    const user = await findUserByEmail(email);
+    const user = await User.findOne({
+        where: { email }
+    });
     if (user) {
         return response.status(400).json({ message: 'User with the email already exists' });
     }
     const hashedPassword = await hashPassword(password);
-    let sqlQuery = `INSERT INTO users(name, email,password) VALUES ('${name}', '${email}', '${hashedPassword}')`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).json({ message: 'User Registered' });
-    })
+    const newUser = await User.create({
+        name,
+        email,
+        password: hashedPassword
+    });
+    return response.status(200).json({ message: 'User Registered' });
 }
-// ADD NEW USER
+
 const addUser = async (request, response) => {
     let { name, email } = request.body;
 
     const hashedPassword = await hashPassword(password);
-    let sqlQuery = `INSERT INTO users(name, email,password) VALUES ('${name}', '${email}')`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).send({ message: 'Added User' });
-    })
+    const newUser = await User.create({
+        name,
+        email,
+        password: hashedPassword
+    });
+    return response.status(200).json({ message: 'Added User' });
 }
 
-// UPDATE EXISTING USER
-const updateUser = (request, response) => {
+const updateUser = async (request, response) => {
     let id = +(request.params.id);
     let { name, email } = request.body;
-    pool.query(`UPDATE users SET name='${name}', email='${email}' where id = ${id}`, function (error, results) {
-        if (error) {
-            throw error
-        }
-        return response.status(200).send({'message':`Update User Id: ${id}`});
-    })
+    const user = await User.findByPk(id);
+    if (!user) {
+        return response.status(404).json({ message: 'User not found' });
+    }
+    await user.update({
+        name,
+        email
+    });
+    return response.status(200).json({ message: `Updated User Id: ${id}` });
 }
 
 module.exports = {

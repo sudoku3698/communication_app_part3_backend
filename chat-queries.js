@@ -1,60 +1,78 @@
 const Pool = require("pg").Pool;
 const constant=require("./util/constant")
 const pool = new Pool(constant.databaseConfig)
+const Chat = require('./models/chat');
 
 const getChats = (request, response) => {
-    let sqlQuery = `SELECT username, message, date FROM chats ORDER BY date DESC`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
+    Chat.findAll({
+        attributes: ['username', 'message', 'date'],
+        order: [['date', 'DESC']]
+    }).then(results => {
+            return response.status(200).json(results);
+        })
+        .catch(error => {
             throw error
-        }
-        return response.status(200).json(results.rows);
-    })
+        })
 }
 
 const getChatById = (request, response) => {
     let id = +(request.params.id);
-    let sqlQuery = `SELECT username, message, date FROM chats WHERE id = ${id}`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
+    Chat.findOne({
+        where: { id: id },
+        attributes: ['username', 'message', 'date']
+    }).then(result => {
+            if (!result) {
+                return response.status(404).send({ message: 'Chat not found' });
+            }
+            return response.status(200).json(result);
+        })
+        .catch(error => {
             throw error
-        }
-        return response.status(200).json(results.rows[0]);
-    })
+        })
 }
 
 const addChat = (request, response) => {
     let { username, message, date } = request.body;
-    let sqlQuery = `INSERT INTO chats(username, message, date) VALUES ('${username}', '${message}', '${date}') returning *`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
+    Chat.create({
+        username,
+        message,
+        date
+    }).then(result => {
+            return response.status(200).json({ message: 'Added Chat', data: result });
+        })
+        .catch(error => {
             throw error
-        }
-        return response.status(200).json({ message: 'Added Chat', data: results.rows[0] });
-    })
+        })
 }
 
 const updateChat = (request, response) => {
     let id = +(request.params.id);
     let { username, message, date } = request.body;
-    let sqlQuery = `UPDATE chats SET username='${username}', message='${message}', date='${date}' where id = ${id}`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
+    Chat.update({
+        username,
+        message,
+        date
+    }, {
+            where: { id: id }
+        })
+        .then(result => {
+            return response.status(200).send({ 'message': `Update Chat Id: ${id}` });
+        })
+        .catch(error => {
             throw error
-        }
-        return response.status(200).send({'message':`Update Chat Id: ${id}`});
-    })
+        })
 }
 
 const deleteChatById = (request, response) => {
     let id = +(request.params.id);
-    let sqlQuery = `DELETE FROM chats where id = ${id}`;
-    pool.query(sqlQuery, function (error, results) {
-        if (error) {
+    Chat.destroy({
+        where: { id: id }
+    }).then(result => {
+            return response.status(200).send({ 'message': `Deleted Chat ID:${id}` });
+        })
+        .catch(error => {
             throw error
-        }
-        return response.status(200).send({'message':`Deleted Chat ID:${id}`});
-    })
+        })
 }
 
 module.exports = {
